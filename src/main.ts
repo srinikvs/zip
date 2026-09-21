@@ -215,6 +215,10 @@ function onClick(event: Event): void {
       startFresh(difficulty);
       break;
     case "new":
+      if (won) {
+        startFresh(difficulty);
+        break;
+      }
       puzzle = advanceQueue(difficulty);
       render();
       break;
@@ -238,6 +242,9 @@ function onClick(event: Event): void {
       screen = "howto";
       leaveOpen = false;
       render();
+      break;
+    case "home":
+      leaveToPortal();
       break;
     case "games":
       requestLeave();

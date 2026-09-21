@@ -1,4 +1,4 @@
-# Zip v1.0.0
+# Zip v1.0.1
 
 Playadda number-path puzzle. Draw one orthogonal path from **1 → N**, visit every cell exactly once, and never cross a wall.
 
@@ -7,11 +7,12 @@ Vite `base` is **`/zip/`**.
 
 ## Playadda UX
 
-1. Version ID (`v1.0.0`) on the how-to-play screen, the play HUD, and the win card.
-2. How to play **before** play, with **Start** on the same screen. Difficulty (Easy / Medium) and **New puzzle** live only here.
+1. Version ID (`v1.0.1`) on the how-to-play screen, the play HUD, and the win card.
+2. How to play **before** play, with **Start** on the same screen. Difficulty (Easy / Medium) and **New puzzle** live only here (and **New puzzle** on the win card).
 3. **BEST** is the fastest completion time for each difficulty.
 4. **← Games** returns to the Playadda portal. During an unfinished puzzle it asks **Save**, **Discard**, or **Stay**.
-5. A saved game offers **Continue** on the next visit.
+5. After a win, **Home** returns to the portal. **New puzzle** deals the next board of the same difficulty.
+6. A saved game offers **Continue** on the next visit.
 
 `localStorage` key: `playadda-zip-v1`
 
@@ -38,7 +39,7 @@ npm run preview  # http://localhost:4173/zip/
 ## Jenkins
 
 ```bash
-npm ci && npm run build
+npm install && npm run build
 ```
 
 `npm run build` runs `tsc -b && vite build --base /zip/`.
