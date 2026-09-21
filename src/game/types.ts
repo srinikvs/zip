@@ -1,4 +1,6 @@
-export type Difficulty = "easy" | "medium";
+export type Difficulty = "easy" | "medium" | "hard";
+
+export const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];
 
 export type Cell = { r: number; c: number };
 
@@ -24,4 +26,5 @@ export type SavedProgress = {
 export type BestTimes = {
   easy: number | null;
   medium: number | null;
+  hard: number | null;
 };

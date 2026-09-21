@@ -1,4 +1,4 @@
-# Zip v1.0.1
+# Zip v1.0.2
 
 Playadda number-path puzzle. Draw one orthogonal path from **1 → N**, visit every cell exactly once, and never cross a wall.
 
@@ -7,11 +7,11 @@ Vite `base` is **`/zip/`**.
 
 ## Playadda UX
 
-1. Version ID (`v1.0.1`) on the how-to-play screen, the play HUD, and the win card.
-2. How to play **before** play, with **Start** on the same screen. Difficulty (Easy / Medium) and **New puzzle** live only here (and **New puzzle** on the win card).
+1. Version ID (`v1.0.2`) on the how-to-play screen, the play HUD, and the win card.
+2. How to play **before** play. Pick **Easy / Medium / Hard**, then **Start**.
 3. **BEST** is the fastest completion time for each difficulty.
 4. **← Games** returns to the Playadda portal. During an unfinished puzzle it asks **Save**, **Discard**, or **Stay**.
-5. After a win, **Home** returns to the portal. **New puzzle** deals the next board of the same difficulty.
+5. After a win, **Home** returns to the portal. **Easy / Medium / Hard** deal a new unused board from that pool.
 6. A saved game offers **Continue** on the next visit.
 
 `localStorage` key: `playadda-zip-v1`
@@ -24,7 +24,7 @@ Vite `base` is **`/zip/`**.
 - **Undo** removes the last step. **Clear** wipes the path.
 - The timer starts with the puzzle. A win records BEST if you beat it.
 
-Ten handcrafted boards: five Easy (5×5 / 6×6) and five Medium (6×6 with denser walls).
+Pool: 10 Easy (5×5), 10 Medium (6×6), 8 Hard (6×6 / 7×7). The next board is random from unused ids in that pool.
 
 ## Run locally
 
@@ -44,15 +44,6 @@ npm install && npm run build
 
 `npm run build` runs `tsc -b && vite build --base /zip/`.
 Rsync **`dist/`** to the Playadda `/zip/` path.
-
-```apache
-# Apache under /zip/
-Alias /zip/ /var/www/playadda/zip/
-<Directory /var/www/playadda/zip>
-    Require all granted
-    FallbackResource /zip/index.html
-</Directory>
-```
 
 ## Stack
 

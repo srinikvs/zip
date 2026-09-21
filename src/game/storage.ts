@@ -2,13 +2,19 @@ import type { BestTimes, Difficulty, SavedProgress } from "./types.ts";
 
 export const STORAGE_KEY = "playadda-zip-v1";
 export const SAVE_VERSION = 1;
+const RECENT_CAP = 6;
 
 type Store = {
   version: number;
   easy: number | null;
   medium: number | null;
+  hard: number | null;
   lastEasy: string | null;
   lastMedium: string | null;
+  lastHard: string | null;
+  recentEasy: string[];
+  recentMedium: string[];
+  recentHard: string[];
   progress: SavedProgress | null;
 };
 
@@ -16,8 +22,13 @@ const emptyStore = (): Store => ({
   version: SAVE_VERSION,
   easy: null,
   medium: null,
+  hard: null,
   lastEasy: null,
   lastMedium: null,
+  lastHard: null,
+  recentEasy: [],
+  recentMedium: [],
+  recentHard: [],
   progress: null,
 });
 
@@ -25,10 +36,19 @@ function asBest(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.floor(value) : null;
 }
 
+function asIds(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((id): id is string => typeof id === "string" && id.length > 0).slice(0, RECENT_CAP);
+}
+
+function isDifficulty(value: unknown): value is Difficulty {
+  return value === "easy" || value === "medium" || value === "hard";
+}
+
 function parseProgress(value: unknown): SavedProgress | null {
   if (!value || typeof value !== "object") return null;
   const raw = value as Partial<SavedProgress>;
-  if (raw.difficulty !== "easy" && raw.difficulty !== "medium") return null;
+  if (!isDifficulty(raw.difficulty)) return null;
   if (typeof raw.puzzleId !== "string" || raw.puzzleId.length === 0) return null;
   if (!Array.isArray(raw.path) || !raw.path.every((n) => Number.isInteger(n) && n >= 0)) return null;
   if (typeof raw.elapsed !== "number" || !Number.isFinite(raw.elapsed) || raw.elapsed < 0) return null;
@@ -50,8 +70,13 @@ function loadStore(): Store {
       version: SAVE_VERSION,
       easy: asBest(parsed.easy),
       medium: asBest(parsed.medium),
+      hard: asBest(parsed.hard),
       lastEasy: typeof parsed.lastEasy === "string" ? parsed.lastEasy : null,
       lastMedium: typeof parsed.lastMedium === "string" ? parsed.lastMedium : null,
+      lastHard: typeof parsed.lastHard === "string" ? parsed.lastHard : null,
+      recentEasy: asIds(parsed.recentEasy),
+      recentMedium: asIds(parsed.recentMedium),
+      recentHard: asIds(parsed.recentHard),
       progress: parseProgress(parsed.progress),
     };
   } catch {
@@ -67,9 +92,21 @@ function writeStore(store: Store): void {
   }
 }
 
+function lastKey(difficulty: Difficulty): "lastEasy" | "lastMedium" | "lastHard" {
+  if (difficulty === "easy") return "lastEasy";
+  if (difficulty === "medium") return "lastMedium";
+  return "lastHard";
+}
+
+function recentKey(difficulty: Difficulty): "recentEasy" | "recentMedium" | "recentHard" {
+  if (difficulty === "easy") return "recentEasy";
+  if (difficulty === "medium") return "recentMedium";
+  return "recentHard";
+}
+
 export function loadBestTimes(): BestTimes {
   const store = loadStore();
-  return { easy: store.easy, medium: store.medium };
+  return { easy: store.easy, medium: store.medium, hard: store.hard };
 }
 
 export function recordBestTime(difficulty: Difficulty, seconds: number): BestTimes {
@@ -79,7 +116,7 @@ export function recordBestTime(difficulty: Difficulty, seconds: number): BestTim
     store[difficulty] = seconds;
     writeStore(store);
   }
-  return { easy: store.easy, medium: store.medium };
+  return { easy: store.easy, medium: store.medium, hard: store.hard };
 }
 
 export function loadProgress(): SavedProgress | null {
@@ -102,13 +139,22 @@ export function clearProgress(): void {
 }
 
 export function lastPuzzleId(difficulty: Difficulty): string | null {
+  return loadStore()[lastKey(difficulty)];
+}
+
+export function recentPuzzleIds(difficulty: Difficulty): string[] {
   const store = loadStore();
-  return difficulty === "easy" ? store.lastEasy : store.lastMedium;
+  const recent = store[recentKey(difficulty)];
+  const last = store[lastKey(difficulty)];
+  const ids = recent.slice();
+  if (last && !ids.includes(last)) ids.push(last);
+  return ids;
 }
 
 export function rememberPuzzle(difficulty: Difficulty, id: string): void {
   const store = loadStore();
-  if (difficulty === "easy") store.lastEasy = id;
-  else store.lastMedium = id;
+  store[lastKey(difficulty)] = id;
+  const next = [id, ...store[recentKey(difficulty)].filter((item) => item !== id)].slice(0, RECENT_CAP);
+  store[recentKey(difficulty)] = next;
   writeStore(store);
 }
