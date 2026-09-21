@@ -60,7 +60,8 @@ export function boardHtml(puzzle: Puzzle, path: number[]): string {
   return `<div class="paper-wrap"><div class="board" data-testid="board" style="--n:${size}" role="grid" aria-label="Zip board">${cells.join("")}<div class="path-layer" aria-hidden="true">${lines.join("")}</div></div></div>`;
 }
 
-export function playScreenHtml(puzzle: Puzzle, path: number[], best: number | null, elapsed: number, won: boolean, beatBest: boolean): string {
+export function playScreenHtml(puzzle: Puzzle, path: number[], best: number | null, elapsed: number, won: boolean, beatBest: boolean, _difficulty?: Difficulty): string {
+  void _difficulty;
   return `<div class="play-screen" data-testid="play-screen">
       <header class="topbar">${gamesBack()}<div class="brand compact"><p class="kicker">Playadda</p><h1>${GAME_TITLE}</h1><span class="ver-badge" data-testid="version">v${GAME_VERSION}</span></div>
         <button type="button" class="icon-btn" data-action="help" aria-label="How to play">?</button></header>
