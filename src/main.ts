@@ -1,11 +1,11 @@
 import { canStep, formatTime, isSolved, startIndex } from "./game/engine.ts";
 import { leaveToPortal } from "./game/portal.ts";
-import { nextPuzzle, puzzleById, puzzlesFor } from "./game/puzzles.ts";
+import { pickPuzzle, puzzleById, puzzlesFor } from "./game/puzzles.ts";
 import {
   clearProgress,
-  lastPuzzleId,
   loadBestTimes,
   loadProgress,
+  recentPuzzleIds,
   recordBestTime,
   rememberPuzzle,
   saveProgress,
@@ -33,15 +33,10 @@ let startedAt: number | null = null;
 let dragging = false;
 let lastPointer = -1;
 
-function queuedPuzzle(diff: Difficulty): Puzzle {
-  const last = lastPuzzleId(diff);
-  const saved = last ? puzzleById(last) : undefined;
-  if (saved && saved.difficulty === diff) return saved;
-  return puzzlesFor(diff)[0];
-}
-
-function advanceQueue(diff: Difficulty): Puzzle {
-  const next = nextPuzzle(queuedPuzzle(diff));
+function dealPuzzle(diff: Difficulty): Puzzle {
+  const exclude = recentPuzzleIds(diff);
+  if (puzzle.difficulty === diff) exclude.push(puzzle.id);
+  const next = pickPuzzle(diff, exclude);
   rememberPuzzle(diff, next.id);
   return next;
 }
@@ -64,8 +59,7 @@ function snapshot() {
 
 function startFresh(diff: Difficulty): void {
   difficulty = diff;
-  puzzle = queuedPuzzle(diff);
-  rememberPuzzle(diff, puzzle.id);
+  puzzle = dealPuzzle(diff);
   path = [];
   elapsed = 0;
   won = false;
@@ -104,7 +98,6 @@ function checkWin(): void {
   best = recordBestTime(difficulty, seconds);
   beatBest = prev === null || seconds < prev;
   clearProgress();
-  rememberPuzzle(difficulty, nextPuzzle(puzzle).id);
 }
 
 function tryAdd(cell: number): void {
@@ -204,6 +197,10 @@ function onClick(event: Event): void {
   if (!t) return;
   const action = t.dataset.action;
   const diff = t.dataset.diff as Difficulty | undefined;
+  if (action === "play" && diff) {
+    startFresh(diff);
+    return;
+  }
   if (diff) {
     difficulty = diff;
     render();
@@ -213,14 +210,6 @@ function onClick(event: Event): void {
   switch (action) {
     case "start":
       startFresh(difficulty);
-      break;
-    case "new":
-      if (won) {
-        startFresh(difficulty);
-        break;
-      }
-      puzzle = advanceQueue(difficulty);
-      render();
       break;
     case "continue":
       continueSaved();

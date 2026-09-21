@@ -1,5 +1,5 @@
 import { formatTime, idx, rc } from "./game/engine.ts";
-import type { BestTimes, Difficulty, Puzzle, SavedProgress } from "./game/types.ts";
+import { DIFFICULTIES, type BestTimes, type Difficulty, type Puzzle, type SavedProgress } from "./game/types.ts";
 import { GAME_TITLE, GAME_VERSION } from "./game/version.ts";
 
 const HOW_TO = [
@@ -13,6 +13,14 @@ export function gamesBack(): string {
   return `<button type="button" class="games-back" data-action="games">← Games</button>`;
 }
 
+function modeChips(difficulty: Difficulty, action: "select" | "play"): string {
+  return `<div class="modes" role="group" aria-label="Difficulty">${DIFFICULTIES.map((value) => {
+    const on = action === "select" && difficulty === value ? " chip-on" : "";
+    const extra = action === "play" ? ` data-action="play"` : "";
+    return `<button type="button" class="chip${on}" data-diff="${value}"${extra}>${value}</button>`;
+  }).join("")}</div>`;
+}
+
 export function startScreenHtml(best: BestTimes, difficulty: Difficulty, saved: SavedProgress | null): string {
   return `<div class="start-screen" data-testid="start-screen">
       <header class="start-top">${gamesBack()}<div class="brand"><p class="kicker">Playadda</p><h1>${GAME_TITLE}</h1><span class="ver-badge" data-testid="version">v${GAME_VERSION}</span></div></header>
@@ -20,15 +28,15 @@ export function startScreenHtml(best: BestTimes, difficulty: Difficulty, saved: 
       <div class="best-row">
         <div class="best-chip" data-testid="best-easy"><span class="stat-label">BEST Easy</span><span class="stat-value">${formatTime(best.easy)}</span></div>
         <div class="best-chip" data-testid="best-medium"><span class="stat-label">BEST Medium</span><span class="stat-value">${formatTime(best.medium)}</span></div>
+        <div class="best-chip" data-testid="best-hard"><span class="stat-label">BEST Hard</span><span class="stat-value">${formatTime(best.hard)}</span></div>
       </div>
       <section class="start-card" data-testid="start-panel">
         <div class="card-head"><p class="eyebrow">How to play</p><span class="ver-badge ink" data-testid="howto-version">v${GAME_VERSION}</span></div>
         <h2>Draw the only path that fits</h2>
         <ol class="howto-list" data-testid="howto">${HOW_TO.map((step, i) => `<li><span class="howto-n">${i + 1}</span><span>${step}</span></li>`).join("")}</ol>
-        <div class="modes" role="radiogroup" aria-label="Difficulty">${(["easy", "medium"] as const).map((value) => `<button type="button" class="chip${difficulty === value ? " chip-on" : ""}" data-diff="${value}">${value}</button>`).join("")}</div>
+        ${modeChips(difficulty, "select")}
         ${saved ? `<button type="button" class="cta start-go" data-action="continue" data-testid="continue">Continue ${saved.difficulty} · ${formatTime(saved.elapsed)}</button>` : ""}
         <button type="button" class="cta start-go${saved ? " ghost" : ""}" data-action="start" data-testid="start">${saved ? "Start fresh" : "Start"}</button>
-        <button type="button" class="cta ghost" data-action="new" data-testid="new-puzzle">New puzzle</button>
         <p class="start-version">Playadda · v${GAME_VERSION}</p>
       </section>
     </div>`;
@@ -80,7 +88,7 @@ export function playScreenHtml(puzzle: Puzzle, path: number[], best: number | nu
 
 export function winCardHtml(elapsed: number, beatBest: boolean, won: boolean): string {
   if (!won) return "";
-  return `<div class="win-screen" data-testid="win"><div class="win-card"><p class="kicker">Solved</p><h2>${beatBest ? "New best time" : "Path complete"}</h2><p class="win-time">${formatTime(elapsed)}</p><p class="win-sub">Playadda Zip · v${GAME_VERSION}</p><button type="button" class="cta" data-action="home" data-testid="win-home">Home</button><button type="button" class="cta ghost" data-action="new" data-testid="win-new">New puzzle</button></div></div>`;
+  return `<div class="win-screen" data-testid="win"><div class="win-card"><p class="kicker">Solved</p><h2>${beatBest ? "New best time" : "Path complete"}</h2><p class="win-time">${formatTime(elapsed)}</p><p class="win-sub">Playadda Zip · v${GAME_VERSION}</p><button type="button" class="cta" data-action="home" data-testid="win-home">Home</button>${modeChips("easy", "play")}</div></div>`;
 }
 
 export function leaveCardHtml(open: boolean): string {
