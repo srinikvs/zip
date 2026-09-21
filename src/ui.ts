@@ -80,7 +80,7 @@ export function playScreenHtml(puzzle: Puzzle, path: number[], best: number | nu
 
 export function winCardHtml(elapsed: number, beatBest: boolean, won: boolean): string {
   if (!won) return "";
-  return `<div class="win-screen" data-testid="win"><div class="win-card"><p class="kicker">Solved</p><h2>${beatBest ? "New best time" : "Path complete"}</h2><p class="win-time">${formatTime(elapsed)}</p><p class="win-sub">Playadda Zip · v${GAME_VERSION}</p><button type="button" class="cta" data-action="howto">How to play</button></div></div>`;
+  return `<div class="win-screen" data-testid="win"><div class="win-card"><p class="kicker">Solved</p><h2>${beatBest ? "New best time" : "Path complete"}</h2><p class="win-time">${formatTime(elapsed)}</p><p class="win-sub">Playadda Zip · v${GAME_VERSION}</p><button type="button" class="cta" data-action="home" data-testid="win-home">Home</button><button type="button" class="cta ghost" data-action="new" data-testid="win-new">New puzzle</button></div></div>`;
 }
 
 export function leaveCardHtml(open: boolean): string {
