@@ -260,7 +260,7 @@ function render(): void {
   root.innerHTML = `<div class="app" data-testid="app">${
     screen === "howto"
       ? startScreenHtml(best, difficulty, loadProgress())
-      : playScreenHtml(puzzle, path, best[difficulty], elapsed, won, beatBest, difficulty)
+      : playScreenHtml(puzzle, path, best[difficulty], elapsed, won, beatBest)
   }${winCardHtml(elapsed, beatBest, won)}${leaveCardHtml(leaveOpen)}</div>`;
 }
 
