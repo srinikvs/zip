@@ -31,9 +31,16 @@ Pool: 10 Easy (5×5, light walls), 10 Medium (6×6, mixed walls), 10 Hard (6×6 
 ```bash
 npm install
 npm run dev      # http://localhost:5173/zip/
-npm test
+npm test         # unit
+npm run test:e2e # Playwright pixel + desktop against local preview
 npm run build    # writes dist/
 npm run preview  # http://localhost:4173/zip/
+```
+
+`npm run test:e2e` builds and previews at `http://127.0.0.1:4173/zip/` unless `BASE_URL` is set. Live smoke skips the local server:
+
+```bash
+BASE_URL=https://playaddatest.duckdns.org/zip/ npm run test:e2e
 ```
 
 ## Jenkins
